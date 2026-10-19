@@ -6,13 +6,74 @@ import pandas as pd
 from pythainlp.tokenize import word_tokenize
 from pythainlp.corpus import thai_stopwords
 
-# ตั้งค่าหน้าเว็บ
-st.set_page_config(page_title="Thai IR System with TF-IDF", page_icon="📊", layout="wide")
+# 1. ตั้งค่าหน้าเว็บแบบกว้าง พร้อมใส่ Icon และชื่อ
+st.set_page_config(
+    page_title="Thai IR System - Assignment 2",
+    page_icon="⚡",
+    layout="wide"
+)
 
-st.title("📊 Thai IR System - Term Weighting (Assignment 2)")
-st.write("ระบบค้นคืนสารสนเทศภาษาไทยที่เพิ่มประสิทธิภาพการให้น้ำหนักคำด้วย TF-IDF")
+# 2. ปรับแต่งดีไซน์ด้วย Custom CSS (Modern Light Theme)
+st.markdown("""
+    <style>
+    /* ซ่อน Streamlit Header & Footer ส่วนเกิน */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* ตกแต่ง Header ใหญ่ */
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1E293B;
+        margin-bottom: 0.2rem;
+    }
+    .sub-title {
+        font-size: 1rem;
+        color: #64748B;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* ตกแต่งการ์ดแสดงเอกสาร */
+    .doc-card {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .doc-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .doc-badge {
+        background-color: #3B82F6;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+    .score-badge {
+        background-color: #10B981;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        float: right;
+    }
+    .doc-text {
+        font-size: 1.05rem;
+        color: #334155;
+        line-height: 1.6;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# เอกสารตัวอย่าง
+# --- ข้อมูลและฟังก์ชันประมวลผล ---
 documents = [
     "สวัสดีครับ นี่คือข้อความทดสอบสำหรับการประมวลผลข้อความ",
     "เราจะตัดคำ ลดรูปคำ และลบคำฟุ่มเฟือยออกจากข้อความนี้",
@@ -34,7 +95,6 @@ def preprocess_text(text):
 
 doc_tokens = {i+1: preprocess_text(doc) for i, doc in enumerate(documents)}
 
-# 1. คำนวณ Term Frequency (TF)
 def compute_tf(tokens):
     tf_dict = {}
     total_tokens = len(tokens)
@@ -43,7 +103,6 @@ def compute_tf(tokens):
         tf_dict[token] = count / total_tokens if total_tokens > 0 else 0
     return tf_dict
 
-# 2. คำนวณ Inverse Document Frequency (IDF)
 def compute_idf(doc_tokens_dict):
     N = len(doc_tokens_dict)
     idf_dict = {}
@@ -53,7 +112,6 @@ def compute_idf(doc_tokens_dict):
         idf_dict[word] = math.log10(N / doc_count) if doc_count > 0 else 0
     return idf_dict
 
-# 3. คำนวณ TF-IDF
 def compute_tfidf(doc_tokens_dict):
     idf_dict = compute_idf(doc_tokens_dict)
     tfidf_dict = {}
@@ -64,8 +122,62 @@ def compute_tfidf(doc_tokens_dict):
 
 tfidf_results, idf_results = compute_tfidf(doc_tokens)
 
-# ตารางแสดงค่าน้ำหนัก TF-IDF
-with st.expander("🔍 ดูตารางค่าน้ำหนักคีย์เวิร์ด (Term Weighting Table)"):
+# --- ส่วนการแสดงผลส่วนหัว (Header) ---
+st.markdown('<div class="main-title">⚡ Thai IR System with Term Weighting</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">ระบบค้นคืนสารสนเทศภาษาไทย ประมวลผลและจัดอันดับความเกี่ยวข้องด้วย TF-IDF (Assignment 2)</div>', unsafe_allow_html=True)
+
+# การ์ดสรุปสถิติระบบ (Metrics Summary)
+col_m1, col_m2, col_m3 = st.columns(3)
+with col_m1:
+    st.metric(label="📚 จำนวนเอกสารในระบบ", value=f"{len(documents)} รายการ")
+with col_m2:
+    st.metric(label="🔤 คำศัพท์ทั้งหมด (Vocabulary)", value=f"{len(idf_results)} คำ")
+with col_m3:
+    st.metric(label="⚙️ Algorithm", value="TF-IDF Weighting")
+
+st.divider()
+
+# --- แยกหน้าการทำงานเป็น Tabs เพื่อ UX ที่สะอาดขึ้น ---
+tab_search, tab_matrix, tab_docs = st.tabs(["🔍 ค้นหาข้อมูล (Search)", "📊 ตารางน้ำหนักคำ (TF-IDF Table)", "📄 เอกสารทั้งหมด (Corpus)"])
+
+# TAB 1: หน้าค้นหาข้อมูล
+with tab_search:
+    query = st.text_input("พิมพ์คำค้นหาที่ต้องการ:", placeholder="เช่น ข้อความ, ค้นหา, ดัชนี")
+    
+    if query:
+        query_tokens = preprocess_text(query)
+        st.caption(f"⚙️ **คำค้นหาหลังทำ Preprocessing:** `{ ' | '.join(query_tokens) if query_tokens else 'ไม่พบคำสำคัญ' }`")
+        
+        scores = defaultdict(float)
+        for token in query_tokens:
+            for doc_id, tfidf_map in tfidf_results.items():
+                if token in tfidf_map:
+                    scores[doc_id] += tfidf_map[token]
+                    
+        ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        
+        st.markdown("### 🎯 ผลการค้นหา (Ranked Results)")
+        
+        found = False
+        for rank, (doc_id, score) in enumerate(ranked_docs, start=1):
+            if score > 0:
+                found = True
+                st.markdown(f"""
+                <div class="doc-card">
+                    <span class="doc-badge">อันดับที่ {rank} • Document {doc_id}</span>
+                    <span class="score-badge">TF-IDF Score: {score:.4f}</span>
+                    <div class="doc-text">{documents[doc_id-1]}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+        if not found:
+            st.info("❌ ไม่พบเอกสารที่เกี่ยวข้องกับคำค้นหานี้")
+
+# TAB 2: ตารางแสดงน้ำหนักคำ
+with tab_matrix:
+    st.markdown("#### 📊 ค่าน้ำหนัก Term Weighting (TF-IDF)")
+    st.write("ตารางแสดงค่า IDF ของแต่ละคำ และค่า TF-IDF ในแต่ละเอกสาร")
+    
     all_words = sorted(list(idf_results.keys()))
     matrix = []
     for word in all_words:
@@ -73,27 +185,16 @@ with st.expander("🔍 ดูตารางค่าน้ำหนักคี
         for doc_id in doc_tokens.keys():
             row[f'Doc {doc_id} (TF-IDF)'] = round(tfidf_results[doc_id].get(word, 0.0), 4)
         matrix.append(row)
-    st.dataframe(pd.DataFrame(matrix), use_container_width=True)
+        
+    st.dataframe(pd.DataFrame(matrix), use_container_width=True, height=400)
 
-# ช่องพิมพ์คำค้นหา
-query = st.text_input("ใส่คำค้นหาที่ต้องการ (Query):", placeholder="เช่น ข้อความ, ค้นหา")
-
-if query:
-    query_tokens = preprocess_text(query)
-    st.write(f"**คำค้นหาหลัง Preprocessing:** `{query_tokens}`")
-    
-    scores = defaultdict(float)
-    for token in query_tokens:
-        for doc_id, tfidf_map in tfidf_results.items():
-            if token in tfidf_map:
-                scores[doc_id] += tfidf_map[token]
-                
-    ranked_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    
-    st.subheader("🎯 ผลการค้นหา (เรียงตามคะแนน TF-IDF)")
-    if ranked_docs and ranked_docs[0][1] > 0:
-        for rank, (doc_id, score) in enumerate(ranked_docs, start=1):
-            if score > 0:
-                st.success(f"**อันดับ {rank}** | Document {doc_id} (คะแนน TF-IDF: `{score:.4f}`)\n\n{documents[doc_id-1]}")
-    else:
-        st.warning("ไม่พบเอกสารที่เกี่ยวข้อง")
+# TAB 3: แสดงรายการเอกสารทั้งหมด
+with tab_docs:
+    st.markdown("#### 📄 รายการเอกสารในคลังข้อมูล")
+    for doc_id, doc_text in enumerate(documents, start=1):
+        st.markdown(f"""
+        <div class="doc-card">
+            <span class="doc-badge">Document {doc_id}</span>
+            <div class="doc-text">{doc_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
