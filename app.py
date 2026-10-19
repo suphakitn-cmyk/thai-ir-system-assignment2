@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# 2. CUSTOM DESIGN SYSTEM (CSS)
+# 2. CUSTOM DESIGN SYSTEM (FULL STYLES)
 # ---------------------------------------------------------
 st.markdown("""
     <style>
@@ -25,23 +25,31 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Kanit', sans-serif;
-        background-color: #F8FAFC;
+        font-family: 'Kanit', sans-serif !important;
+        background-color: #F8FAFC !important;
     }
 
     /* Hide Default Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
+    /* Global App Container Padding */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 1200px !important;
+    }
 
     /* Top Banner / Header */
     .hero-container {
-        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-        padding: 30px 40px;
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        padding: 32px 40px;
         border-radius: 16px;
         color: #FFFFFF;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+        margin-bottom: 24px;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+        border: 1px solid #334155;
     }
     .hero-title {
         font-size: 2.2rem;
@@ -53,29 +61,54 @@ st.markdown("""
         gap: 12px;
     }
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #94A3B8;
-        margin-top: 6px;
+        margin-top: 8px;
         font-weight: 300;
     }
 
     /* Metric Cards Styling */
     div[data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        padding: 16px 20px;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        padding: 18px 22px !important;
+        border-radius: 14px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
         color: #64748B !important;
-        font-weight: 500;
+        font-weight: 500 !important;
     }
     div[data-testid="stMetricValue"] {
         font-size: 1.5rem !important;
         color: #0F172A !important;
-        font-weight: 600;
+        font-weight: 700 !important;
+    }
+
+    /* Tab Custom Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        border-bottom: 2px solid #E2E8F0;
+        padding-bottom: 2px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 46px;
+        white-space: pre;
+        background-color: #FFFFFF;
+        border-radius: 10px 10px 0px 0px;
+        border: 1px solid #E2E8F0;
+        border-bottom: none;
+        color: #64748B;
+        font-weight: 500;
+        padding: 0px 22px;
+        transition: all 0.2s ease;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #2563EB !important;
+        color: #FFFFFF !important;
+        border-color: #2563EB !important;
+        font-weight: 600 !important;
     }
 
     /* Document Cards Specs */
@@ -83,14 +116,14 @@ st.markdown("""
         background-color: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 14px;
-        padding: 20px 24px;
+        padding: 22px 26px;
         margin-bottom: 16px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         transition: all 0.25s ease-in-out;
     }
     .doc-card:hover {
         border-color: #3B82F6;
-        box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.12);
+        box-shadow: 0 8px 18px -4px rgba(59, 130, 246, 0.12);
         transform: translateY(-2px);
     }
     .card-header {
@@ -124,33 +157,16 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Search Box Container */
-    .search-section {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
+    /* Search Box Input Field Styling */
+    div[data-baseweb="input"] {
+        border-radius: 12px !important;
+        border: 1px solid #CBD5E1 !important;
+        background-color: #FFFFFF !important;
+        padding: 4px 8px !important;
     }
-
-    /* Tab Custom Styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 48px;
-        white-space: pre;
-        background-color: #FFFFFF;
-        border-radius: 8px;
-        border: 1px solid #E2E8F0;
-        color: #64748B;
-        font-weight: 500;
-        padding: 0px 20px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #3B82F6 !important;
-        color: #FFFFFF !important;
-        border-color: #3B82F6 !important;
+    div[data-baseweb="input"]:focus-within {
+        border-color: #2563EB !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -238,9 +254,8 @@ tab_search, tab_matrix, tab_docs = st.tabs([
 
 # --- TAB 1: SEARCH ---
 with tab_search:
-    st.markdown('<div class="search-section">', unsafe_allow_html=True)
-    query = st.text_input("ป้อนคำค้นหา (Query):", placeholder="เช่น ข้อความ, ค้นหา, ดัชนี")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    query = st.text_input("ป้อนคำค้นหาที่ต้องการ (Query):", placeholder="เช่น ข้อความ, ค้นหา, ดัชนี")
     
     if query:
         query_tokens = preprocess_text(query)
@@ -276,6 +291,7 @@ with tab_search:
 
 # --- TAB 2: TF-IDF MATRIX ---
 with tab_matrix:
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("#### 📊 ตารางแสดงค่าน้ำหนัก Term Weighting (TF-IDF)")
     st.caption("ตารางแสดงค่า Inverse Document Frequency (IDF) ของคำศัพท์ และค่า TF-IDF ในแต่ละเอกสาร")
     
@@ -295,6 +311,7 @@ with tab_matrix:
 
 # --- TAB 3: CORPUS ---
 with tab_docs:
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("#### 📄 เอกสารทั้งหมดในคลังข้อมูล (Corpus)")
     st.caption("รายการเอกสารต้นฉบับที่ระบบนำมาประมวลผลดัชนี")
     
