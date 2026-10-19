@@ -6,74 +6,158 @@ import pandas as pd
 from pythainlp.tokenize import word_tokenize
 from pythainlp.corpus import thai_stopwords
 
-# 1. ตั้งค่าหน้าเว็บแบบกว้าง พร้อมใส่ Icon และชื่อ
+# ---------------------------------------------------------
+# 1. PAGE CONFIGURATION
+# ---------------------------------------------------------
 st.set_page_config(
     page_title="Thai IR System - Assignment 2",
     page_icon="⚡",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# 2. ปรับแต่งดีไซน์ด้วย Custom CSS (Modern Light Theme)
+# ---------------------------------------------------------
+# 2. CUSTOM DESIGN SYSTEM (CSS)
+# ---------------------------------------------------------
 st.markdown("""
     <style>
-    /* ซ่อน Streamlit Header & Footer ส่วนเกิน */
+    /* Google Fonts Import */
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Kanit', sans-serif;
+        background-color: #F8FAFC;
+    }
+
+    /* Hide Default Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    
-    /* ตกแต่ง Header ใหญ่ */
-    .main-title {
+    header {visibility: hidden;}
+
+    /* Top Banner / Header */
+    .hero-container {
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        padding: 30px 40px;
+        border-radius: 16px;
+        color: #FFFFFF;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    .hero-title {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #1E293B;
-        margin-bottom: 0.2rem;
+        color: #F8FAFC;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
-    .sub-title {
+    .hero-subtitle {
         font-size: 1rem;
-        color: #64748B;
-        margin-bottom: 1.5rem;
+        color: #94A3B8;
+        margin-top: 6px;
+        font-weight: 300;
     }
-    
-    /* ตกแต่งการ์ดแสดงเอกสาร */
+
+    /* Metric Cards Styling */
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        color: #64748B !important;
+        font-weight: 500;
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 1.5rem !important;
+        color: #0F172A !important;
+        font-weight: 600;
+    }
+
+    /* Document Cards Specs */
     .doc-card {
         background-color: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 18px 22px;
-        margin-bottom: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.25s ease-in-out;
     }
     .doc-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-color: #3B82F6;
+        box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.12);
+        transform: translateY(-2px);
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
     }
     .doc-badge {
-        background-color: #3B82F6;
-        color: white;
-        padding: 4px 10px;
+        background-color: #EFF6FF;
+        color: #2563EB;
+        border: 1px solid #BFDBFE;
+        padding: 4px 12px;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         font-weight: 600;
-        display: inline-block;
-        margin-bottom: 8px;
     }
     .score-badge {
-        background-color: #10B981;
-        color: white;
-        padding: 4px 10px;
+        background-color: #ECFDF5;
+        color: #059669;
+        border: 1px solid #A7F3D0;
+        padding: 4px 12px;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         font-weight: 600;
-        float: right;
     }
     .doc-text {
         font-size: 1.05rem;
         color: #334155;
         line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Search Box Container */
+    .search-section {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+    /* Tab Custom Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 48px;
+        white-space: pre;
+        background-color: #FFFFFF;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        color: #64748B;
+        font-weight: 500;
+        padding: 0px 20px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #3B82F6 !important;
+        color: #FFFFFF !important;
+        border-color: #3B82F6 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- ข้อมูลและฟังก์ชันประมวลผล ---
+# ---------------------------------------------------------
+# 3. DATA & LOGIC ENGINE
+# ---------------------------------------------------------
 documents = [
     "สวัสดีครับ นี่คือข้อความทดสอบสำหรับการประมวลผลข้อความ",
     "เราจะตัดคำ ลดรูปคำ และลบคำฟุ่มเฟือยออกจากข้อความนี้",
@@ -122,31 +206,46 @@ def compute_tfidf(doc_tokens_dict):
 
 tfidf_results, idf_results = compute_tfidf(doc_tokens)
 
-# --- ส่วนการแสดงผลส่วนหัว (Header) ---
-st.markdown('<div class="main-title">⚡ Thai IR System with Term Weighting</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">ระบบค้นคืนสารสนเทศภาษาไทย ประมวลผลและจัดอันดับความเกี่ยวข้องด้วย TF-IDF (Assignment 2)</div>', unsafe_allow_html=True)
+# ---------------------------------------------------------
+# 4. UI RENDERING
+# ---------------------------------------------------------
 
-# การ์ดสรุปสถิติระบบ (Metrics Summary)
+# HERO HEADER
+st.markdown("""
+<div class="hero-container">
+    <div class="hero-title">⚡ Thai IR System with Term Weighting</div>
+    <div class="hero-subtitle">ระบบค้นคืนสารสนเทศภาษาไทย ประมวลผลและจัดอันดับความเกี่ยวข้องด้วย TF-IDF Model (Assignment 2)</div>
+</div>
+""", unsafe_allow_html=True)
+
+# METRIC DASHBOARD
 col_m1, col_m2, col_m3 = st.columns(3)
 with col_m1:
-    st.metric(label="📚 จำนวนเอกสารในระบบ", value=f"{len(documents)} รายการ")
+    st.metric(label="📚 จำนวนเอกสารในระบบ (Corpus)", value=f"{len(documents)} รายการ")
 with col_m2:
-    st.metric(label="🔤 คำศัพท์ทั้งหมด (Vocabulary)", value=f"{len(idf_results)} คำ")
+    st.metric(label="🔤 จำนวนคำศัพท์ทั้งหมด (Vocabulary)", value=f"{len(idf_results)} คำ")
 with col_m3:
-    st.metric(label="⚙️ Algorithm", value="TF-IDF Weighting")
+    st.metric(label="⚙️ Algorithm Engine", value="TF-IDF Weighting")
 
-st.divider()
+st.markdown("<br>", unsafe_allow_html=True)
 
-# --- แยกหน้าการทำงานเป็น Tabs เพื่อ UX ที่สะอาดขึ้น ---
-tab_search, tab_matrix, tab_docs = st.tabs(["🔍 ค้นหาข้อมูล (Search)", "📊 ตารางน้ำหนักคำ (TF-IDF Table)", "📄 เอกสารทั้งหมด (Corpus)"])
+# TABBED NAVIGATION
+tab_search, tab_matrix, tab_docs = st.tabs([
+    "🔍 ค้นหาข้อมูล (Search Engine)", 
+    "📊 ตารางน้ำหนักคำ (TF-IDF Matrix)", 
+    "📄 คลังเอกสาร (Corpus View)"
+])
 
-# TAB 1: หน้าค้นหาข้อมูล
+# --- TAB 1: SEARCH ---
 with tab_search:
-    query = st.text_input("พิมพ์คำค้นหาที่ต้องการ:", placeholder="เช่น ข้อความ, ค้นหา, ดัชนี")
+    st.markdown('<div class="search-section">', unsafe_allow_html=True)
+    query = st.text_input("ป้อนคำค้นหา (Query):", placeholder="เช่น ข้อความ, ค้นหา, ดัชนี")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     if query:
         query_tokens = preprocess_text(query)
-        st.caption(f"⚙️ **คำค้นหาหลังทำ Preprocessing:** `{ ' | '.join(query_tokens) if query_tokens else 'ไม่พบคำสำคัญ' }`")
+        st.markdown(f"**⚙️ คำค้นหาหลัง Preprocessing:** `{' | '.join(query_tokens) if query_tokens else 'ไม่พบคำสำคัญ'}`")
+        st.markdown("<br>", unsafe_allow_html=True)
         
         scores = defaultdict(float)
         for token in query_tokens:
@@ -164,37 +263,47 @@ with tab_search:
                 found = True
                 st.markdown(f"""
                 <div class="doc-card">
-                    <span class="doc-badge">อันดับที่ {rank} • Document {doc_id}</span>
-                    <span class="score-badge">TF-IDF Score: {score:.4f}</span>
-                    <div class="doc-text">{documents[doc_id-1]}</div>
+                    <div class="card-header">
+                        <span class="doc-badge">อันดับที่ {rank} • Document {doc_id}</span>
+                        <span class="score-badge">TF-IDF Score: {score:.4f}</span>
+                    </div>
+                    <p class="doc-text">{documents[doc_id-1]}</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
         if not found:
-            st.info("❌ ไม่พบเอกสารที่เกี่ยวข้องกับคำค้นหานี้")
+            st.warning("❌ ไม่พบเอกสารที่เกี่ยวข้องกับคำค้นหานี้")
 
-# TAB 2: ตารางแสดงน้ำหนักคำ
+# --- TAB 2: TF-IDF MATRIX ---
 with tab_matrix:
-    st.markdown("#### 📊 ค่าน้ำหนัก Term Weighting (TF-IDF)")
-    st.write("ตารางแสดงค่า IDF ของแต่ละคำ และค่า TF-IDF ในแต่ละเอกสาร")
+    st.markdown("#### 📊 ตารางแสดงค่าน้ำหนัก Term Weighting (TF-IDF)")
+    st.caption("ตารางแสดงค่า Inverse Document Frequency (IDF) ของคำศัพท์ และค่า TF-IDF ในแต่ละเอกสาร")
     
     all_words = sorted(list(idf_results.keys()))
     matrix = []
     for word in all_words:
-        row = {'คีย์เวิร์ด (Term)': word, 'IDF': round(idf_results[word], 4)}
+        row = {'คีย์เวิร์ด (Term)': word, 'IDF Score': round(idf_results[word], 4)}
         for doc_id in doc_tokens.keys():
             row[f'Doc {doc_id} (TF-IDF)'] = round(tfidf_results[doc_id].get(word, 0.0), 4)
         matrix.append(row)
         
-    st.dataframe(pd.DataFrame(matrix), use_container_width=True, height=400)
+    st.dataframe(
+        pd.DataFrame(matrix), 
+        use_container_width=True, 
+        height=420
+    )
 
-# TAB 3: แสดงรายการเอกสารทั้งหมด
+# --- TAB 3: CORPUS ---
 with tab_docs:
-    st.markdown("#### 📄 รายการเอกสารในคลังข้อมูล")
+    st.markdown("#### 📄 เอกสารทั้งหมดในคลังข้อมูล (Corpus)")
+    st.caption("รายการเอกสารต้นฉบับที่ระบบนำมาประมวลผลดัชนี")
+    
     for doc_id, doc_text in enumerate(documents, start=1):
         st.markdown(f"""
         <div class="doc-card">
-            <span class="doc-badge">Document {doc_id}</span>
-            <div class="doc-text">{doc_text}</div>
+            <div class="card-header">
+                <span class="doc-badge">Document {doc_id}</span>
+            </div>
+            <p class="doc-text">{doc_text}</p>
         </div>
         """, unsafe_allow_html=True)
